@@ -73,13 +73,13 @@ public class AES {
         byte[] iv = params.getParameterSpec(IvParameterSpec.class).getIV();
         byte[] ciphertext = cipher.doFinal(data);
         Base64.Encoder e = Base64.getEncoder();
-        return e.encodeToString(iv) + seperator + e.encodeToString(ciphertext) + seperator + e.encodeToString(salt);
+        return e.encodeToString((e.encodeToString(iv) + seperator + e.encodeToString(ciphertext) + seperator + e.encodeToString(salt)).getBytes());
     }
 
     public static String decrypt(char[] password, String ciphertext) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException, InvalidKeySpecException {
-        String[] data = ciphertext.split(seperator);
-        Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
         Base64.Decoder d = Base64.getDecoder();
+        String[] data = new String(d.decode(ciphertext)).split(seperator);
+        Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
         cipher.init(Cipher.DECRYPT_MODE, createKey(password, d.decode(data[2]), iterations), new IvParameterSpec(d.decode(data[0])));
         return new String(cipher.doFinal(d.decode(data[1])));
     }
